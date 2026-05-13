@@ -1,0 +1,6 @@
+{
+  "name": "sound.img",
+  "description": "An experimental pixel-to-sound sampler and MPC-style instrument.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
