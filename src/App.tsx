@@ -1382,7 +1382,7 @@ export default function App() {
                 </div>
 
                 {/* Row 3: FX */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "10px 8px", paddingTop: 8, borderTop: `1px solid ${P.border}` }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "16px 8px", paddingTop: 10, borderTop: `1px solid ${P.border}` }}>
                   {[
                     { label: "Reverb",  p: "reverb",      v: lp.reverb      },
                     { label: "Delay",   p: "delay",        v: lp.delay       },
@@ -1391,7 +1391,7 @@ export default function App() {
                     { label: "Phase",   p: "phaser",       v: lp.phaser      },
                     { label: "Comp",    p: "compression",  v: lp.compression },
                   ].map(fx => (
-                    <div key={fx.p} style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                    <div key={fx.p} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                         <span className="si-label">{fx.label}</span>
                         <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "0.48rem", color: "#666" }}>{Math.round(fx.v * 10)}</span>
