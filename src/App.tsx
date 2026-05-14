@@ -43,7 +43,7 @@ const INSTRUMENTS = [
   { id: "synth",   label: "Synth (Tri)" },
   { id: "drums",   label: "Drums"       },
   { id: "keys",     label: "Keys"        },
-  { id: "strings", label: "Strings"     },
+  { id: "vocals",  label: "Vocals"      },
   { id: "custom",  label: "Custom Pack" },
 ];
 
@@ -66,7 +66,22 @@ const SAMPLE_MAPS: Record<string, any> = {
     C5: "C5.ogg", D5: "D5.ogg", E5: "E5.ogg", F5: "F5.ogg", G5: "G5.ogg", A5: "A5.ogg", B5: "B5.ogg",
     C6: "C6.ogg", D6: "D6.ogg", E6: "E6.ogg", F6: "F6.ogg", G6: "G6.ogg", A6: "A6.ogg", B6: "B6.ogg",
   },
-  strings: { C3: "A0.mp3", "D#3": "C1.mp3" },
+  // 50 chordal vocal pads mapped 1-per-semitone C2–C#6: nearest-note always hits an exact anchor, zero pitch-shifting
+  vocals: {
+    C2:    "v01.ogg", "C#2": "v02.ogg", D2:    "v03.ogg", "D#2": "v04.ogg", E2:    "v05.ogg",
+    F2:    "v06.ogg", "F#2": "v07.ogg", G2:    "v08.ogg", "G#2": "v09.ogg", A2:    "v10.ogg",
+    "A#2": "v11.ogg", B2:   "v12.ogg",
+    C3:    "v13.ogg", "C#3": "v14.ogg", D3:    "v15.ogg", "D#3": "v16.ogg", E3:    "v17.ogg",
+    F3:    "v18.ogg", "F#3": "v19.ogg", G3:    "v20.ogg", "G#3": "v21.ogg", A3:    "v22.ogg",
+    "A#3": "v23.ogg", B3:   "v24.ogg",
+    C4:    "v25.ogg", "C#4": "v26.ogg", D4:    "v27.ogg", "D#4": "v28.ogg", E4:    "v29.ogg",
+    F4:    "v30.ogg", "F#4": "v31.ogg", G4:    "v32.ogg", "G#4": "v33.ogg", A4:    "v34.ogg",
+    "A#4": "v35.ogg", B4:   "v36.ogg",
+    C5:    "v37.ogg", "C#5": "v38.ogg", D5:    "v39.ogg", "D#5": "v40.ogg", E5:    "v41.ogg",
+    F5:    "v42.ogg", "F#5": "v43.ogg", G5:    "v44.ogg", "G#5": "v45.ogg", A5:    "v46.ogg",
+    "A#5": "v47.ogg", B5:   "v48.ogg",
+    C6:    "v49.ogg", "C#6": "v50.ogg",
+  },
 };
 
 function getSamplerNote(midi: number, keys: string[]): string {
@@ -443,17 +458,15 @@ export default function App() {
     d({ t: "RDY" });
   }, []);
 
-  // ── Preload samplers ───────────────────────────────────────────────────────
-  useEffect(() => {
-    if (!s.ready || !masterGain.current) return;
-    Object.keys(SAMPLE_MAPS).forEach(inst => {
-      if (!preloadedSamplers.current.has(inst)) {
-        preloadedSamplers.current.set(inst, new Tone.Sampler({
-          urls: SAMPLE_MAPS[inst], baseUrl: `/samples/${inst}/`,
-        }).connect(masterGain.current!));
-      }
-    });
-  }, [s.ready]);
+  // ── Sampler loader (on-demand) ─────────────────────────────────────────────
+  const ensureSampler = useCallback((inst: string): Tone.Sampler => {
+    if (!preloadedSamplers.current.has(inst)) {
+      preloadedSamplers.current.set(inst, new Tone.Sampler({
+        urls: SAMPLE_MAPS[inst], baseUrl: `/samples/${inst}/`,
+      }).connect(masterGain.current!));
+    }
+    return preloadedSamplers.current.get(inst)!;
+  }, []);
 
   // ── MPC synth switch ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -471,12 +484,12 @@ export default function App() {
       if (mpcSynth.current instanceof Tone.PolySynth) mpcSynth.current.dispose();
       mpcSynth.current = target;
     } else {
-      const preloaded = preloadedSamplers.current.get(s.mpcInstrument);
-      if (mpcSynth.current === preloaded) return;
+      const sampler = ensureSampler(s.mpcInstrument);
+      if (mpcSynth.current === sampler) return;
       if (mpcSynth.current instanceof Tone.PolySynth) mpcSynth.current.dispose();
-      mpcSynth.current = preloaded ?? null;
+      mpcSynth.current = sampler;
     }
-  }, [s.ready, s.mpcInstrument]);
+  }, [s.ready, s.mpcInstrument, ensureSampler]);
 
   // ── Custom pack rebuild ────────────────────────────────────────────────────
   useEffect(() => {
