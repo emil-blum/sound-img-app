@@ -42,7 +42,7 @@ const STRIP_COLS  = ["#0090cc","#ff6b6b","#ffd93d","#6bcb77","#ff922b","#cc5de8"
 const INSTRUMENTS = [
   { id: "synth",   label: "Synth (Tri)" },
   { id: "drums",   label: "Drums"       },
-  { id: "bells",   label: "Keys"        },
+  { id: "keys",     label: "Keys"        },
   { id: "strings", label: "Strings"     },
   { id: "custom",  label: "Custom Pack" },
 ];
@@ -59,7 +59,13 @@ const SAMPLE_MAPS: Record<string, any> = {
     C4: "boom.wav", "D#4": "kick.wav", F4: "tom1.wav", G4: "tom2.wav", "A#4": "tom3.wav",
     C5: "tom4.wav", "D#5": "808s.wav", F5: "clap.wav", G5: "hat.wav",  "A#5": "bell.wav",
   },
-  bells:   { C4: "A1.mp3", "F#4": "C2.mp3" },
+  keys: {
+    C2: "C2.ogg", D2: "D2.ogg", E2: "E2.ogg", F2: "F2.ogg", G2: "G2.ogg", A2: "A2.ogg", B2: "B2.ogg",
+    C3: "C3.ogg", D3: "D3.ogg", E3: "E3.ogg", F3: "F3.ogg", G3: "G3.ogg", A3: "A3.ogg", B3: "B3.ogg",
+    C4: "C4.ogg", D4: "D4.ogg", E4: "E4.ogg", F4: "F4.ogg", G4: "G4.ogg", A4: "A4.ogg", B4: "B4.ogg",
+    C5: "C5.ogg", D5: "D5.ogg", E5: "E5.ogg", F5: "F5.ogg", G5: "G5.ogg", A5: "A5.ogg", B5: "B5.ogg",
+    C6: "C6.ogg", D6: "D6.ogg", E6: "E6.ogg", F6: "F6.ogg", G6: "G6.ogg", A6: "A6.ogg", B6: "B6.ogg",
+  },
   strings: { C3: "A0.mp3", "D#3": "C1.mp3" },
 };
 
