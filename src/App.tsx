@@ -41,8 +41,8 @@ const STRIP_COLS  = ["#0090cc","#ff6b6b","#ffd93d","#6bcb77","#ff922b","#cc5de8"
 
 const INSTRUMENTS = [
   { id: "synth",   label: "Synth (Tri)" },
-  { id: "drums",   label: "Drums (808)" },
-  { id: "bells",   label: "Bells"       },
+  { id: "drums",   label: "Drums"       },
+  { id: "bells",   label: "Keys"        },
   { id: "strings", label: "Strings"     },
   { id: "custom",  label: "Custom Pack" },
 ];
@@ -54,15 +54,22 @@ const CUSTOM_NOTE_SLOTS = [
 ];
 
 const SAMPLE_MAPS: Record<string, any> = {
-  drums:   { C3: "kick.mp3", D3: "snare.mp3", E3: "hihat.mp3", F3: "cowbell.mp3", G3: "rim.mp3" },
+  // 10 sounds mapped to pentatonic minor at C (default scale) — nearest-note lookup, no pitch-shifting on defaults
+  drums: {
+    C4: "boom.wav", "D#4": "kick.wav", F4: "tom1.wav", G4: "tom2.wav", "A#4": "tom3.wav",
+    C5: "tom4.wav", "D#5": "808s.wav", F5: "clap.wav", G5: "hat.wav",  "A#5": "bell.wav",
+  },
   bells:   { C4: "A1.mp3", "F#4": "C2.mp3" },
   strings: { C3: "A0.mp3", "D#3": "C1.mp3" },
 };
 
 function getSamplerNote(midi: number, keys: string[]): string {
   if (!keys.length) return Tone.Frequency(midi, "midi").toNote();
-  const idx = Math.min(keys.length - 1, Math.floor((midi / 128) * keys.length));
-  return keys[idx];
+  return keys.reduce((best, key) => {
+    const dBest = Math.abs(Tone.Frequency(best).toMidi() - midi);
+    const dKey  = Math.abs(Tone.Frequency(key).toMidi()  - midi);
+    return dKey < dBest ? key : best;
+  });
 }
 
 // ─── Key → grid ──────────────────────────────────────────────────────────────
