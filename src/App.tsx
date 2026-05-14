@@ -289,7 +289,8 @@ export default function App() {
   const [customFiles, setCustomFiles] = useState<CustomFile[]>([]);
   const customFilesRef = useRef<CustomFile[]>([]); customFilesRef.current = customFiles;
   const [customVersion, setCustomVersion] = useState(0);
-  const customSamplerRef = useRef<Tone.Sampler | null>(null);
+  const customSamplerRef   = useRef<Tone.Sampler | null>(null);
+  const loopInstruments    = useRef(new Map<string, string>()); // loop.id → built instrument id
 
   // Canvas + nav refs
   const cvs    = useRef<HTMLCanvasElement>(null);
@@ -504,7 +505,7 @@ export default function App() {
     const ids = new Set(s.loops.map(l => l.id));
 
     loopSeqs.current.forEach((seq, id)  => { if (!ids.has(id)) { seq.dispose();  loopSeqs.current.delete(id);  } });
-    loopSynths.current.forEach((syn, id) => { if (!ids.has(id)) { syn.dispose();  loopSynths.current.delete(id); } });
+    loopSynths.current.forEach((syn, id) => { if (!ids.has(id)) { syn.dispose();  loopSynths.current.delete(id); loopInstruments.current.delete(id); } });
     loopNodes.current.forEach((nodes, id) => {
       if (!ids.has(id)) {
         nodes.vol.dispose(); nodes.dist.dispose(); nodes.reverbSend.dispose();
@@ -540,10 +541,8 @@ export default function App() {
 
       // ── Instrument (shared) ──
       let syn = loopSynths.current.get(loop.id);
-      const isCorrectType = loop.instrument === "synth"
-        ? (syn instanceof Tone.PolySynth || syn instanceof Tone.Synth)
-        : (syn instanceof Tone.Sampler);
-      if (!syn || !isCorrectType) {
+      const builtFor = loopInstruments.current.get(loop.id);
+      if (!syn || builtFor !== loop.instrument) {
         syn?.dispose();
         if (loop.instrument === "synth") {
           syn = new Tone.Synth({
@@ -563,6 +562,7 @@ export default function App() {
           syn = new Tone.Sampler({ urls: SAMPLE_MAPS[loop.instrument], baseUrl: `/samples/${loop.instrument}/` }).connect(nodes.chain);
         }
         loopSynths.current.set(loop.id, syn);
+        loopInstruments.current.set(loop.id, loop.instrument);
       }
 
       const playbackRate = loop.speed === "half" ? 0.5 : loop.speed === "double" ? 2 : 1;
