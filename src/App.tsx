@@ -258,7 +258,7 @@ function reducer(s: AppState, a: Action): AppState {
           y: s.sy, x0: xa, x1: xb, col, muted: false,
           octave: 0, root: s.root, speed: "normal", volume: 0.8,
           distortion: 0, reverb: 0, delay: 0, chorus: 0, phaser: 0, compression: 0,
-          instrument: "synth",
+          instrument: s.mpcInstrument,
         }],
         colIdx: s.colIdx + 1 };
     }
@@ -977,20 +977,22 @@ export default function App() {
         <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(5,5,6,0.96)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 28, maxWidth: 480, padding: "48px 40px", background: "rgba(10,10,12,0.9)", border: `1px solid ${P.border}`, textAlign: "center" }}>
             <div>
-              <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "0.58rem", fontWeight: 300, color: P.sub, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 8 }}>Calumma Studio // Sound.IMG</p>
-              <h1 style={{ fontFamily: "Inter, sans-serif", fontWeight: 900, fontSize: "2rem", textTransform: "uppercase", letterSpacing: "-0.02em", color: P.accent, margin: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
-                <span style={{ width: 9, height: 9, background: P.accent, boxShadow: `0 0 12px ${P.accentGlow}`, flexShrink: 0 }} />
+              <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "0.58rem", fontWeight: 300, color: P.sub, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 8 }}>Experiment in Progress by Emīl Blūm</p>
+              <h1 style={{ fontFamily: "Inter, sans-serif", fontWeight: 900, fontSize: "2rem", textTransform: "uppercase", letterSpacing: "-0.02em", color: P.accent, margin: 0 }}>
                 Sound.IMG
               </h1>
             </div>
             <p style={{ fontFamily: "Inter, sans-serif", fontSize: "0.9rem", color: "#aaa", lineHeight: 1.65, margin: 0 }}>
-              Transform any photograph into a playable instrument. Every pixel becomes a note — its colour sets the pitch, its brightness sets the velocity. Navigate the image, play notes on your keyboard, and capture rows as looping sequences.
+              Transform any image into a playable instrument. Each pixel becomes a note: its colour sets the pitch, its brightness the velocity. Navigate the image, play notes on your keyboard and capture looping sequences.
             </p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 16px", fontSize: "0.65rem", fontFamily: "'JetBrains Mono',monospace", color: P.sub, textAlign: "left" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%", textAlign: "left" }}>
+              <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "0.55rem", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.14em", color: P.sub }}>Controls</span>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 16px", fontSize: "0.65rem", fontFamily: "'JetBrains Mono',monospace", color: P.sub }}>
               <span><strong style={{ color: P.txt }}>ARROWS</strong> — navigate</span>
               <span><strong style={{ color: P.txt }}>1-6, Q-Y, A-H, Z-N</strong> — play pads</span>
               <span><strong style={{ color: P.txt }}>CLICK + DRAG</strong> — capture loop</span>
               <span><strong style={{ color: P.txt }}>SPACE + DRAG</strong> — pan canvas</span>
+              </div>
             </div>
             <button onClick={initAudio} style={{
               background: P.accent, border: "none", color: "#fff",
@@ -1016,7 +1018,6 @@ export default function App() {
       <header style={{ display: "flex", alignItems: "center", gap: 0, height: 58, background: P.panel, borderBottom: `1px solid ${P.border}`, padding: "0 22px", flexShrink: 0, zIndex: 20, position: "relative" }}>
         {/* Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: 16, flexShrink: 0 }}>
-          <span style={{ width: 7, height: 7, background: P.accent, boxShadow: `0 0 8px ${P.accentGlow}`, flexShrink: 0 }} />
           <span style={{ fontFamily: "Inter,sans-serif", fontWeight: 900, fontSize: "0.95rem", textTransform: "uppercase", letterSpacing: "-0.02em", color: P.accent }}>Sound.IMG</span>
         </div>
         <div style={{ width: 1, height: 28, background: "rgba(255,62,0,0.22)", marginRight: 12, flexShrink: 0 }} />
