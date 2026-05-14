@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 
 // ─── Canvas dimensions ────────────────────────────────────────────────────────
-const CW = 800, CH = 450;
+let CW = 800, CH = 450;
 
 // ─── Design tokens ───────────────────────────────────────────────────────────
 const P = {
@@ -229,7 +229,7 @@ function reducer(s: AppState, a: Action): AppState {
           id: crypto.randomUUID(), type: "pixel",
           y: s.sy, x0: xa, x1: xb, col, muted: false,
           octave: 0, root: s.root, speed: "normal", volume: 0.8,
-          distortion: 0, reverb: 0.1, delay: 0, chorus: 0, phaser: 0, compression: 0.2,
+          distortion: 0, reverb: 0, delay: 0, chorus: 0, phaser: 0, compression: 0,
           instrument: "synth",
         }],
         colIdx: s.colIdx + 1 };
@@ -245,7 +245,7 @@ function reducer(s: AppState, a: Action): AppState {
           y: -1, x0: 0, x1: 0,
           recordedNotes: a.events, duration: a.duration,
           col, muted: false, octave: 0, root: s.root, speed: "normal",
-          volume: 0.8, distortion: 0, reverb: 0.1, delay: 0, chorus: 0, phaser: 0, compression: 0.2,
+          volume: 0.8, distortion: 0, reverb: 0, delay: 0, chorus: 0, phaser: 0, compression: 0,
           instrument: a.instrument,
         }],
         colIdx: s.colIdx + 1 };
@@ -316,9 +316,7 @@ export default function App() {
   const recordedEventsRef = useRef<RecordedNote[]>([]);
   const [isRecording, setIsRecording] = useState(false);
 
-  // Canvas display sizing
   const canvasContainerRef = useRef<HTMLDivElement>(null);
-  const [canvasDisplaySize, setCanvasDisplaySize] = useState({ w: CW, h: CH });
 
   // Mobile detection
   const [isMobile] = useState(() =>
@@ -332,13 +330,15 @@ export default function App() {
     const ro = new ResizeObserver(entries => {
       const { width, height } = entries[0].contentRect;
       if (width < 10 || height < 10) return;
-      const pad = 24;
-      const ratio = CW / CH;
-      const availW = width - pad, availH = height - pad;
-      const fitW = availW / ratio <= availH;
-      const w = fitW ? availW : availH * ratio;
-      const h = fitW ? availW / ratio : availH;
-      setCanvasDisplaySize({ w: Math.round(w), h: Math.round(h) });
+      const dpr = window.devicePixelRatio || 1;
+      CW = Math.round(width);
+      CH = Math.round(height);
+      if (cvs.current) {
+        cvs.current.width = CW * dpr;
+        cvs.current.height = CH * dpr;
+        const ctx2 = cvs.current.getContext("2d");
+        if (ctx2) ctx2.scale(dpr, dpr);
+      }
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -1209,7 +1209,7 @@ export default function App() {
         </div>
 
         {/* ── CENTER: Canvas ── */}
-        <div ref={canvasContainerRef} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden", minWidth: 0 }}
+        <div ref={canvasContainerRef} style={{ flex: 1, position: "relative", overflow: "hidden", minWidth: 0 }}
           onDragOver={e => e.preventDefault()}
           onDrop={e => { e.preventDefault(); onFile(e.dataTransfer.files[0]); }}>
 
@@ -1230,9 +1230,9 @@ export default function App() {
           )}
 
           {/* Canvas wrapper with minimap */}
-          <div style={{ position: "relative" }} className="canvas-wrap">
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }} className="canvas-wrap">
             <canvas ref={cvs}
-              style={{ display: "block", width: canvasDisplaySize.w, height: canvasDisplaySize.h, opacity: s.imgLoaded ? 1 : 0, transition: "opacity 0.4s", cursor: s.spacePressed ? "grab" : s.isPanning ? "grabbing" : "crosshair" }}
+              style={{ display: "block", width: "100%", height: "100%", opacity: s.imgLoaded ? 1 : 0, transition: "opacity 0.4s", cursor: s.spacePressed ? "grab" : s.isPanning ? "grabbing" : "crosshair" }}
               onMouseDown={onMouseDown}
               onMouseMove={onMouseMove}
               onMouseUp={() => { d({ t: "PAN_END" }); if (s.sel) d({ t: "SK" }); }}
@@ -1298,7 +1298,7 @@ export default function App() {
             )}
 
             {s.loops.map(lp => (
-              <div key={lp.id} style={{ background: P.cell, border: `1px solid ${P.border}`, padding: "9px 10px", display: "flex", flexDirection: "column", gap: 7 }}>
+              <div key={lp.id} style={{ background: P.cell, border: `1px solid ${P.border}`, borderTop: `1px solid ${P.accent}`, padding: "13px 10px", display: "flex", flexDirection: "column", gap: 10 }}>
 
                 {/* Row 1: Identity + actions */}
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -1382,7 +1382,7 @@ export default function App() {
                 </div>
 
                 {/* Row 3: FX */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "6px 8px", paddingTop: 6, borderTop: `1px solid ${P.border}` }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "10px 8px", paddingTop: 8, borderTop: `1px solid ${P.border}` }}>
                   {[
                     { label: "Reverb",  p: "reverb",      v: lp.reverb      },
                     { label: "Delay",   p: "delay",        v: lp.delay       },
